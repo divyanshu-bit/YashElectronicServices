@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoltMaster: Professional Electrical</title>
+    <style>
+        /* =========================================
+           1. CORE VARIABLES & RESET
+           ========================================= */
+        :root {
+            --dark-bg: #050505;
+            --light-bg: #ffffff;
+            --accent: #FFD700; /* Electric Gold */
+            --blue: #003366;   /* Deep Engineering Blue */
+            --tech-white: #f4f6f8; /* Lab White */
+            --text-dark: #1a1a1a;
+            --text-grey: #555555;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--dark-bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            color: white;
+        }
+
+        /* =========================================
+           2. NAVIGATION
+           ========================================= */
+        nav {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            padding: 25px 5%;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            mix-blend-mode: difference;
+            color: white;
+            pointer-events: none;
+        }
+        
+        nav * { pointer-events: auto; }
+
+        .logo { font-weight: 900; letter-spacing: -1px; font-size: 1.5rem; text-transform: uppercase; }
+        
+        .call-btn { 
+            border: 1px solid white; 
+            padding: 12px 25px; 
+            text-decoration: none; 
+            color: white; 
+            font-size: 0.85rem; 
+            font-weight: 600;
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .call-btn:hover { background: white; color: black; }
+
+        /* =========================================
+           3. HERO SECTION
+           ========================================= */
+        .hero-section {
+            --hero-bg: #050505;
+            --hero-text: #ffffff;
+            --spotlight-color: rgba(255, 215, 0, 0.15);
+            
+            height: 100vh;
+            background-color: var(--hero-bg);
+            color: var(--hero-text);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            cursor: pointer;
+            transition: background-color 0.6s ease, color 0.6s ease;
+            z-index: 20;
+        }
+
+        .hero-section.inverted {
+            --hero-bg: #ffffff;
+            --hero-text: #003366; 
+            --spotlight-color: rgba(0, 51, 102, 0.08);
+        }
+
+        .spotlight-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: radial-gradient(
+                600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                var(--spotlight-color), 
+                transparent 40%
+            );
+            transition: background 0.6s ease;
+            z-index: 1;
+        }
+
+        .hero-content { z-index: 2; position: relative; }
+
+        h1 { 
+            font-size: 9vw; 
+            margin: 0; 
+            line-height: 0.9; 
+            text-transform: uppercase; 
+            letter-spacing: -0.04em;
+        }
+        
+        .tagline { 
+            font-size: 1.2rem; 
+            margin-top: 30px; 
+            opacity: 0.7; 
+            letter-spacing: 2px; 
+            text-transform: uppercase;
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 40px;
+            font-size: 0.75rem;
+            opacity: 0.4;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes pulse { 0% { opacity: 0.2; } 50% { opacity: 0.6; } 100% { opacity: 0.2; } }
+
+        /* =========================================
+           4. SERVICES SECTION: FULL SCREEN VIDEO
+           ========================================= */
+        .cinema-section {
+            position: relative;
+            background: #ffffff;
+            color: var(--text-dark);
+            z-index: 5; 
+        }
+
+        /* --- STAGE (Background Videos) --- */
+        .cinema-stage {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            z-index: 0;
+            background: #000; /* Dark base */
+            overflow: hidden;
+        }
+
+        .bg-video {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* KEY: Forces video to cover FULL screen */
+            object-fit: cover; 
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            z-index: 1;
+        }
+
+        /* Active State Logic */
+        .cinema-stage[data-active="ro"] #vid-ro,
+        .cinema-stage[data-active="inverter"] #vid-inverter,
+        .cinema-stage[data-active="battery"] #vid-battery,
+        .cinema-stage[data-active="ups"] #vid-ups,
+        .cinema-stage[data-active="stabilizer"] #vid-stabilizer,
+        .cinema-stage[data-active="appliances"] #vid-appliances,
+        .cinema-stage[data-active="wiring"] #vid-wiring {
+            opacity: 1;
+        }
+
+        .stage-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            
+            /* UPDATED GRADIENT:
+               1. Changed center to 'transparent' (was 20% white) -> Video is now crystal clear in middle.
+               2. Pushed the white fade start to '65%' (was 20%) -> Pushes the fog to the edges.
+            */
+            background: radial-gradient(circle, transparent 65%, rgba(255,255,255,0.9) 100%);
+            
+            /* OPTIONAL: Reduced blur from 3px to 0px so video looks sharp */
+            backdrop-filter: blur(0px); 
+            
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* --- SCROLL CONTENT (Cards) --- */
+        .cinema-scroll-container {
+            position: relative;
+            z-index: 10;
+        }
+
+        .cinema-scene {
+            min-height: 100vh;
+            display: flex;
+            justify-content: space-between; /* Pushes content to edges */
+            align-items: flex-end; /* Aligns cards to bottom */
+            padding: 0 5%;
+            padding-bottom: 15vh;
+            box-sizing: border-box;
+            pointer-events: none; 
+        }
+
+        .card-block {
+            background: rgba(255, 255, 255, 0.95); /* Solid white for readability */
+            border: 1px solid rgba(0,0,0,0.05);
+            padding: 30px;
+            border-radius: 16px;
+            width: 25vw;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15); /* Strong shadow */
+            pointer-events: auto; 
+            transition: all 0.8s ease-out;
+            color: #333;
+        }
+
+        /* Left Card Animation */
+        .card-left {
+            transform: translateX(-50px);
+            opacity: 0;
+            text-align: left;
+        }
+        .card-left h2 { margin-top: 0; font-size: 2.5rem; color: var(--blue); line-height: 1; margin-bottom: 10px;}
+        .card-left p { font-size: 1rem; color: #555; line-height: 1.5; margin: 0; }
+        .scene-cue { display: block; font-family: monospace; color: var(--accent); text-transform: uppercase; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
+
+
+        /* Right Card Animation */
+        .card-right {
+            transform: translateX(50px);
+            opacity: 0;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .spec-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #f4f6f8;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* Active State */
+        .cinema-scene.in-view .card-left,
+        .cinema-scene.in-view .card-right {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 900px) {
+            .cinema-scene {
+                flex-direction: column;
+                justify-content: flex-end;
+                align-items: center;
+                padding-bottom: 80px;
+            }
+            .card-block {
+                width: 90%;
+                margin-bottom: 15px;
+                text-align: center;
+            }
+            .card-right { align-items: center; }
+            .card-left, .card-right { transform: translateY(20px); } 
+            
+            /* Darken overlay slightly on mobile so white text is readable if needed */
+            .stage-overlay { background: rgba(255,255,255,0.7); }
+        }
+
+        /* =========================================
+           5. PROCESS SECTION: PCB LAYERS (WHITE)
+           ========================================= */
+        .deck-section {
+            background: var(--tech-white);
+            padding: 150px 5%;
+            position: relative;
+            z-index: 10;
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            color: #333;
+        }
+
+        .deck-header {
+            text-align: center;
+            margin-bottom: 120px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .deck-header h2 { font-size: 3rem; margin: 0; color: var(--blue); letter-spacing: -1px; }
+        .deck-header p { color: #666; margin-top: 15px; font-family: monospace; letter-spacing: 2px; text-transform: uppercase; }
+
+        .deck-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding-bottom: 200px; 
+        }
+
+        .layer-card {
+            position: sticky; 
+            top: 15vh; 
+            height: 450px;
+            margin-bottom: 10vh; 
+            background: #ffffff; 
+            border: 1px solid rgba(0,0,0,0.1); 
+            border-radius: 16px;
+            display: flex;
+            overflow: hidden;
+            transform-origin: center top;
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            opacity: 0.3; 
+            transform: scale(0.95);
+        }
+
+        .layer-card.is-active {
+            opacity: 1;
+            transform: scale(1);
+            background: #ffffff;
+            border-color: var(--blue);
+            box-shadow: 0 30px 60px rgba(0, 51, 102, 0.15); 
+            z-index: 10;
+        }
+
+        .layer-sidebar {
+            width: 80px;
+            background: #f8f9fa;
+            border-right: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 30px 0;
+        }
+
+        .circuit-line {
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--blue), transparent);
+            opacity: 0.5;
+        }
+
+        .layer-num {
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: var(--blue);
+            transform: rotate(-90deg);
+            font-weight: bold;
+        }
+
+        .layer-content {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .layer-card h3 {
+            font-size: 2.5rem;
+            margin: 0 0 20px 0;
+            color: var(--blue);
+        }
+
+        .layer-card p {
+            font-size: 1.1rem;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            max-width: 80%;
+        }
+
+        .problem-tag {
+            display: flex;
+            align-items: center;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #d4af37;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .problem-tag::before {
+            content: "⚠️";
+            margin-right: 10px;
+            font-size: 1rem;
+            filter: grayscale(0%);
+        }
+
+        .specs-row {
+            display: flex;
+            gap: 40px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding-top: 30px;
+        }
+
+        .spec-box span { display: block; }
+        .spec-label { font-size: 0.7rem; text-transform: uppercase; color: #888; letter-spacing: 1px; margin-bottom: 5px; }
+        .spec-value { font-family: monospace; color: #000; font-size: 1.1rem; font-weight: bold; }
+
+        @media (max-width: 768px) {
+            .layer-card { flex-direction: column; height: auto; padding-bottom: 30px; }
+            .layer-sidebar { width: 100%; height: 60px; flex-direction: row; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 0 30px; box-sizing: border-box;}
+            .layer-num { transform: rotate(0deg); }
+            .circuit-line { width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--blue), transparent); }
+        }
+
+        /* =========================================
+           6. FOOTER
+           ========================================= */
+        .footer-section {
+            background-color: black;
+            color: white;
+            padding: 100px 5%;
+            text-align: center;
+            border-top: 1px solid #1a1a1a;
+            position: relative;
+            z-index: 20;
+        }
+
+        .footer-section h2 { font-size: 3rem; margin-bottom: 20px; }
+        .footer-section p { color: #666; margin-bottom: 40px; }
+
+        .big-btn {
+            background: var(--accent);
+            color: black;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .big-btn:hover { transform: scale(1.05); }
+
+        @media (max-width: 900px) {
+            h1 { font-size: 15vw; }
+        }
+        /* =========================================
+   7. MODAL POPUP STYLES
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8); /* Dark background */
+    backdrop-filter: blur(8px);       /* Blur effect behind popup */
+    z-index: 2000;                    /* Sit on top of everything */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;                       /* Hidden by default */
+    pointer-events: none;             /* Can't click it when hidden */
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;             /* Clickable when active */
+}
+
+.modal-card {
+    background: #ffffff;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 20px;
+    padding: 40px;
+    position: relative;
+    transform: translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-overlay.active .modal-card {
+    transform: translateY(0);
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px; right: 20px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #999;
+}
+
+.modal-header h3 { margin: 0; font-size: 1.8rem; color: var(--blue); }
+.modal-header p { margin: 5px 0 25px 0; color: #666; font-size: 0.9rem; }
+
+.input-group { margin-bottom: 15px; }
+
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #f8f9fa;
+    box-sizing: border-box; 
+    color: #333;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+
+.submit-btn:hover { background: #002244; }
+
+        
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">VOLT // MASTER</div>
+        <a href="tel:123456789" class="call-btn">Book Appointment</a>
+    </nav>
+
+    <section class="hero-section">
+        <div class="spotlight-layer"></div>
+        <div class="hero-content">
+            <h1 data-speed="0.1">Power.<br>Restored.</h1>
+            <p class="tagline" data-speed="0.05">Expert Electrical Diagnostics & Repair.</p>
+        </div>
+        <div class="hint">( Tap anywhere to switch lights )</div>
+    </section>
+
+    <section class="cinema-section">
+        
+       <div class="cinema-stage" id="main-stage">
+    
+    <video class="bg-video" id="vid-ro" autoplay loop muted playsinline>
+        <source src="videos/ro-service.mp4" type="video/mp4">
+    </video>
+
+    <video class="bg-video" id="vid-inverter" autoplay loop muted playsinline>
+        <source src="videos/inverter-repair.mp4" type="video/mp4">
+    </video>
+
+    <video class="bg-video" id="vid-battery" autoplay loop muted playsinline>
+        <source src="videos/batteryrevival.mp4" type="video/mp4">
+    </video>
+
+    <video class="bg-video" id="vid-ups" autoplay loop muted playsinline>
+        <source src="videos/ups.mp4" type="video/mp4">
+    </video>
+
+    <video class="bg-video" id="vid-stabilizer" autoplay loop muted playsinline>
+        <source src="videos/stabilizer.mp4" type="video/mp4">
+    </video>
+
+    <video class="bg-video" id="vid-appliances" autoplay loop muted playsinline>
+        <source src="videos/appliances (1).mp4" type="video/mp4">
+    </video>
+
+    <video class="bg-video" id="vid-wiring" autoplay loop muted playsinline>
+        <source src="videos/wiring.mp4" type="video/mp4">
+    </video>
+    
+    <div class="stage-overlay"></div>
+</div>
+    
+        <div class="cinema-scroll-container">
+            
+            <div class="cinema-scene" data-theme="ro">
+                <div class="card-block card-left">
+                    <span class="scene-cue">Service 01</span>
+                    <h2>R.O. Purifier</h2>
+                    <p>Is your water tasting strange? We perform deep membrane cleaning and filter replacements.</p>
+                </div>
+                <div class="card-block card-right">
+                    <span class="spec-tag">TDS Calibration</span>
+                    <span class="spec-tag">Filter Change</span>
+                    <a href="tel:123" class="call-btn" style="background:var(--blue); margin-top:10px;">Book RO Service</a>
+                </div>
+            </div>
+    
+            <div class="cinema-scene" data-theme="inverter">
+                <div class="card-block card-left">
+                    <span class="scene-cue">Service 02</span>
+                    <h2>Inverter Setup</h2>
+                    <p>Grid failure protection. We fix PCBs and calibrate load handling for instant backup.</p>
+                </div>
+                <div class="card-block card-right">
+                    <span class="spec-tag">Board Repair</span>
+                    <span class="spec-tag">Load Testing</span>
+                    <a href="tel:123" class="call-btn" style="background:var(--accent); color:black; margin-top:10px;">Fix Inverter</a>
+                </div>
+            </div>
+    
+            <div class="cinema-scene" data-theme="battery">
+                <div class="card-block card-left">
+                    <span class="scene-cue">Service 03</span>
+                    <h2>Battery Revival</h2>
+                    <p>Dead start? We handle acid gravity balancing and terminal corrosion for cars & homes.</p>
+                </div>
+                <div class="card-block card-right">
+                    <span class="spec-tag">Automotive</span>
+                    <span class="spec-tag">Tubular</span>
+                    <a href="tel:123" class="call-btn" style="background:#d32f2f; margin-top:10px;">Check Battery</a>
+                </div>
+            </div>
+    
+            <div class="cinema-scene" data-theme="ups">
+                <div class="card-block card-left">
+                    <span class="scene-cue">Service 04</span>
+                    <h2>UPS & Chargers</h2>
+                    <p>Chip-level repairing for computer UPS and high-amp industrial chargers.</p>
+                </div>
+                <div class="card-block card-right">
+                    <span class="spec-tag">Micro-Controller</span>
+                    <span class="spec-tag">Coil Rewind</span>
+                    <a href="tel:123" class="call-btn" style="background:#333; margin-top:10px;">Repair UPS</a>
+                </div>
+            </div>
+    
+            <div class="cinema-scene" data-theme="stabilizer">
+                <div class="card-block card-left">
+                    <span class="scene-cue">Service 05</span>
+                    <h2>Stabilizers</h2>
+                    <p>Protect expensive ACs and Fridges from voltage spikes. We replace relays and coils.</p>
+                </div>
+                <div class="card-block card-right">
+                    <span class="spec-tag">High Voltage Cut</span>
+                    <span class="spec-tag">AC & Fridge</span>
+                    <a href="tel:123" class="call-btn" style="background:#e65100; margin-top:10px;">Fix Voltage</a>
+                </div>
+            </div>
+            
+            <div class="cinema-scene" data-theme="appliances">
+                <div class="card-block card-left">
+                    <span class="scene-cue">Service 06</span>
+                    <h2>Appliances</h2>
+                    <p>Fans, Irons, Mixers, Microwaves. If it has a motor or heating element, we fix it.</p>
+                </div>
+                <div class="card-block card-right">
+                    <span class="spec-tag">Motor Winding</span>
+                    <span class="spec-tag">Element Change</span>
+                    <a href="tel:123" class="call-btn" style="background:#2e7d32; margin-top:10px;">Repair Appliance</a>
+                </div>
+            </div>
+    
+            <div class="cinema-scene" data-theme="wiring">
+                <div class="card-block card-left">
+                    <span class="scene-cue">Service 07</span>
+                    <h2>Wiring & MCB</h2>
+                    <p>Short circuits? Sparks? We trace faults behind walls and install safety MCBs.</p>
+                </div>
+                <div class="card-block card-right">
+                    <span class="spec-tag">Safety Audit</span>
+                    <span class="spec-tag">Concealed Wiring</span>
+                    <a href="tel:123" class="call-btn" style="background:var(--blue); margin-top:10px;">Book Electrician</a>
+                </div>
+            </div>
+    
+        </div>
+    </section>
+
+    <section class="deck-section">
+        <div class="deck-header">
+            <h2>Process Layering</h2>
+            <p>// Deconstructed Workflow</p>
+        </div>
+
+        <div class="deck-container">
+            <div class="layer-card">
+                <div class="layer-sidebar">
+                    <div class="circuit-line"></div>
+                    <div class="layer-num">01</div>
+                    <div class="circuit-line"></div>
+                </div>
+                <div class="layer-content">
+                    <span class="problem-tag">Phase 1: Analysis</span>
+                    <h3>Grid Diagnostics</h3>
+                    <p>We use thermal imaging to detect hotspots before they become failures.</p>
+                    <div class="specs-row">
+                        <div class="spec-box">
+                            <span class="spec-label">Time</span>
+                            <span class="spec-value">30 Mins</span>
+                        </div>
+                        <div class="spec-box">
+                            <span class="spec-label">Tool</span>
+                            <span class="spec-value">FLIR Cam</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layer-card">
+                <div class="layer-sidebar">
+                    <div class="circuit-line"></div>
+                    <div class="layer-num">02</div>
+                    <div class="circuit-line"></div>
+                </div>
+                <div class="layer-content">
+                    <span class="problem-tag">Phase 2: Execution</span>
+                    <h3>Component Surgery</h3>
+                    <p>Precision replacement of faulty capacitors, fuses, and wiring harnesses.</p>
+                    <div class="specs-row">
+                        <div class="spec-box">
+                            <span class="spec-label">Grade</span>
+                            <span class="spec-value">Industrial</span>
+                        </div>
+                        <div class="spec-box">
+                            <span class="spec-label">Warranty</span>
+                            <span class="spec-value">2 Years</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layer-card">
+                <div class="layer-sidebar">
+                    <div class="circuit-line"></div>
+                    <div class="layer-num">03</div>
+                    <div class="circuit-line"></div>
+                </div>
+                <div class="layer-content">
+                    <span class="problem-tag">Phase 3: Validation</span>
+                    <h3>Load Stress Test</h3>
+                    <p>We push the system to 110% capacity to ensure stability under peak demand.</p>
+                    <div class="specs-row">
+                        <div class="spec-box">
+                            <span class="spec-label">Metric</span>
+                            <span class="spec-value">Stability</span>
+                        </div>
+                        <div class="spec-box">
+                            <span class="spec-label">Result</span>
+                            <span class="spec-value">Verified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="footer-section">
+        <h2>Need a specific part fix?</h2>
+        <p>We handle all major brands and legacy models.</p>
+        <a href="tel:9876543210" class="big-btn">Call: 987-654-3210</a>
+    </section>
+
+    <script>
+        // --- 1. POPUP FUNCTION ---
+    function toggleModal(show) {
+        const modal = document.getElementById('bookingModal');
+        if (show) {
+            modal.classList.add('active');
+        } else {
+            modal.classList.remove('active');
+        }
+    }
+
+    // --- 2. BUTTON LISTENERS ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Find every button with class 'call-btn' or 'big-btn'
+        const bookBtns = document.querySelectorAll('.call-btn, .big-btn');
+        
+        bookBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // If the link is just a placeholder (not a real phone number), block it and open modal
+                if(btn.getAttribute('href') === '#' || btn.getAttribute('href').includes('tel:')) {
+                     // e.preventDefault(); // Uncomment this line if you NEVER want it to dial the phone
+                     // For now, let's just open the modal
+                     toggleModal(true);
+                     e.preventDefault(); // Stop the phone from dialing so we see the form
+                }
+            });
+        });
+    });
+        class InteractiveArchitecture {
+            constructor() {
+                this.bindMethods();
+                this.dom = {
+                    hero: document.querySelector('.hero-section'),
+                    parallax: document.querySelectorAll('[data-speed]'),
+                    layers: document.querySelectorAll('.layer-card')
+                };
+                this.state = {
+                    mouse: { x: 0, y: 0 }
+                };
+                this.init();
+            }
+
+            bindMethods() {
+                this.render = this.render.bind(this);
+                this.onMouseMove = this.onMouseMove.bind(this);
+                this.toggleTheme = this.toggleTheme.bind(this);
+            }
+
+            init() {
+                window.addEventListener('mousemove', this.onMouseMove);
+                if (this.dom.hero) {
+                    this.dom.hero.addEventListener('click', this.toggleTheme);
+                }
+
+                // Initialize both logic engines
+                this.initLayerObserver();
+                this.initCinematicObserver(); 
+
+                requestAnimationFrame(this.render);
+            }
+
+            // Logic for switching central product image on scroll
+            initCinematicObserver() {
+                const stage = document.getElementById('main-stage');
+                const scenes = document.querySelectorAll('.cinema-scene');
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('in-view');
+                            const theme = entry.target.getAttribute('data-theme');
+                            if (stage && theme) stage.setAttribute('data-active', theme);
+                        } else {
+                            entry.target.classList.remove('in-view');
+                        }
+                    });
+                }, {
+                    threshold: 0.5
+                });
+
+                scenes.forEach(scene => observer.observe(scene));
+            }
+
+            // Logic for highlighting sticky process cards
+            initLayerObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-active');
+                        } else {
+                            entry.target.classList.remove('is-active');
+                        }
+                    });
+                }, {
+                    threshold: 0.5,
+                    rootMargin: "-10% 0px -10% 0px"
+                });
+
+                this.dom.layers.forEach(card => observer.observe(card));
+            }
+
+            onMouseMove(e) {
+                this.state.mouse.x = e.clientX;
+                this.state.mouse.y = e.clientY;
+            }
+
+            toggleTheme() {
+                this.dom.hero.classList.toggle('inverted');
+            }
+
+            render() {
+                const scrollY = window.scrollY;
+                this.dom.parallax.forEach(el => {
+                    const speed = parseFloat(el.dataset.speed);
+                    el.style.transform = `translateY(${scrollY * speed}px)`;
+                });
+
+                if (this.dom.hero) {
+                    this.dom.hero.style.setProperty('--mouse-x', `${this.state.mouse.x}px`);
+                    this.dom.hero.style.setProperty('--mouse-y', `${this.state.mouse.y}px`);
+                }
+
+                requestAnimationFrame(this.render);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new InteractiveArchitecture();
+        });
+    </script>
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal-card">
+            <button class="close-modal" onclick="toggleModal(false)">×</button>
+            <div class="modal-header">
+                <h3>Service Request</h3>
+                <p>Technician dispatch within 2 hours.</p>
+            </div>
+            <form class="booking-form" onsubmit="event.preventDefault(); alert('Request Sent!'); toggleModal(false);">
+                <div class="input-group">
+                    <input type="text" placeholder="Your Name" required>
+                </div>
+                <div class="input-group">
+                    <input type="tel" placeholder="Phone Number" required>
+                </div>
+                <div class="input-group">
+                    <select>
+                        <option value="" disabled selected>Select Service Type</option>
+                        <option value="ro">RO / Water Purifier</option>
+                        <option value="inverter">Inverter & Battery</option>
+                        <option value="ups">UPS / Stabilizer</option>
+                        <option value="appliance">Home Appliances</option>
+                        <option value="wiring">Wiring / Electrical</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Confirm Request</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
